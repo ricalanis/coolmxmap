@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    .default{
+        stroke: #a9a9a9;
+        stroke-width: .5;
+    }
+    .default:hover{
+        fill-opacity:0.5;
+    }
+
+</style>
+<title>Mexico Topojson</title>
+<body>
+<div id="tooltip"></div>
+<div class="map-section"></div>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v0.min.js"></script>
+<script>
+
+var statename= function(d,i) { return d.objects.geometries}
+
+var x = d3.scale.linear()
+    .domain([0, width])
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .domain([0, height])
+    .range([height, 0]);
+
+var width = 960,
+    height = 500;
+
+var projection = d3.geo.mercator()
+    .scale(800)
+    .center([-102.34034978813841, 24.012062015793]);
+
+var svg = d3.select(".map-section").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var g = svg.append("g");
+
+var project_data = [{"region":"Nuevo León"},{"region":"Chihuahua"}]
+
+d3.json("mx_tj.json", function(error, mx) {
+  g.selectAll("path")
+    .data(topojson.object(mx, mx.objects.states).geometries)
+    .enter().append("path")
+    .attr("d", d3.geo.path().projection(projection))
+    .style("stroke", "#324662")
+    .attr("class","default")
+    .attr("state", function(d,i){ return mx.objects.states.geometries[i].properties.state_name})
+    .attr("fill", function(d,i){
+        for (var j in project_data){
+            if (project_data[j].region == mx.objects.states.geometries[i].properties.state_name){ 
+                return "#FF4B00";}
+        }
+        return "#324662" 
+        });
+    });
+
+</script>
